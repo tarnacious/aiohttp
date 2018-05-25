@@ -65,8 +65,7 @@ class BaseTestServer(ABC):
             self.port = 0
         _sock = get_port_socket(self.host, self.port)
         self.host, self.port = _sock.getsockname()[:2]
-        site = SockSite(self.runner, sock=_sock,
-                       ssl_context=self._ssl)
+        site = SockSite(self.runner, sock=_sock, ssl_context=self._ssl)
         await site.start()
         self.port = site._server.port
         if self.scheme is sentinel:
