@@ -6,11 +6,15 @@ from .log import internal_logger
 
 
 __all__ = (
-    'EMPTY_PAYLOAD', 'EofStream', 'StreamReader', 'DataQueue',
+    'EMPTY_PAYLOAD', 'EofStream', 'ToLargeError', 'StreamReader', 'DataQueue',
     'FlowControlDataQueue')
 
 DEFAULT_LIMIT = 2 ** 16
+MAX_STREAM_SIZE = 4 * 10 ** 6
 
+
+class ToLargeError(Exception):
+    """stream to large. """
 
 class EofStream(Exception):
     """eof stream indication."""
@@ -212,6 +216,9 @@ class StreamReader(AsyncStreamReaderMixin):
         self._size += len(data)
         self._buffer.append(data)
         self.total_bytes += len(data)
+
+        if self.total_bytes > MAX_STREAM_SIZE:
+            raise ToLargeError()
 
         waiter = self._waiter
         if waiter is not None:
